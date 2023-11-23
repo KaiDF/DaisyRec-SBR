@@ -247,7 +247,7 @@ class CombineGraph(Module):
         return targets, self.compute_scores(seq_hidden, mask), candidate_set
 
     def fit(self, train_data, validation_data=None):
-        gpuid = int(self.devices.index)
+        gpuid = int(self.device.index)
         self.cuda(gpuid) if torch.cuda.is_available() else self.cpu()
         self.logger.info('Start training...')
         last_loss = 0.0
