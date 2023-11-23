@@ -1,0 +1,4 @@
+Saved at: 2023-11-21 23:15:42
+Best trial getting the best NDCG@5 for AttenMixer: 13
+Best params for AttenMixer: {'l_p': 10, 'item_embedding_dim': 128, 'learning_rate': 0.001, 'batch_size': 128, 'heads': 8}
+Best value for AttenMixer: 0.288

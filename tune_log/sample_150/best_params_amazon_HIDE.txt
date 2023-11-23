@@ -1,0 +1,4 @@
+Saved at: 2023-11-21 12:02:19
+Best trial getting the best NDCG@5 for HIDE: 14
+Best params for HIDE: {'w': 6, 'item_embedding_dim': 64, 'learning_rate': 0.0001, 'batch_size': 64, 'reg': 0.001, 'dropout_gcn': 0.6, 'dropout_local': 0, 'n_factor': 1, 'lamda': 0.01}
+Best value for HIDE: 0.32051282051282054

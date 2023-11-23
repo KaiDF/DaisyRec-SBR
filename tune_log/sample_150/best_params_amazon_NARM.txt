@@ -1,0 +1,4 @@
+Saved at: 2023-11-21 13:30:32
+Best trial getting the best NDCG@5 for NARM: 2
+Best params for NARM: {'hidden_size': 100, 'item_embedding_dim': 128, 'learning_rate': 0.001, 'batch_size': 256, 'n_layers': 1}
+Best value for NARM: 0.28205128205128205

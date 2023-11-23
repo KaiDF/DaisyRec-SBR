@@ -1,0 +1,4 @@
+Saved at: 2023-11-22 11:27:54
+Best trial getting the best NDCG@5 for FPMC: 26
+Best params for FPMC: {'item_embedding_dim': 32, 'learning_rate': 0.001, 'batch_size': 128}
+Best value for FPMC: 0.415

@@ -1,0 +1,4 @@
+Saved at: 2023-11-23 03:22:11
+Best trial getting the best NDCG@5 for MCPRN: 8
+Best params for MCPRN: {'item_embedding_dim': 128, 'learning_rate': 0.001, 'batch_size': 256, 'tau': 0.1, 'purposes': 4}
+Best value for MCPRN: 0.51

@@ -1,0 +1,4 @@
+Saved at: 2023-11-21 23:51:54
+Best trial getting the best NDCG@5 for STAMP: 21
+Best params for STAMP: {'item_embedding_dim': 32, 'learning_rate': 0.0001, 'batch_size': 64}
+Best value for STAMP: 0.571
