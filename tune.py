@@ -103,7 +103,7 @@ def test():
     # training process
     model.fit(train_dataset)#, valid_dataset)
 
-    res_dir = f'res/sample150/{opt.dataset}/'
+    res_dir = f'res/sample50/{opt.dataset}/'
     f = open(res_dir + f'result_{opt.dataset}_{opt.model}_{opt.seed}.txt', 'a')
     for k in [1,5,10]:
         # print(k)
