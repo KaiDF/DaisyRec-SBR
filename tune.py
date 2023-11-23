@@ -181,8 +181,8 @@ def tune():
         model.fit(train_dataset)#, valid_dataset)
         preds, truth = model.predict(valid_dataset, k=opt.topK)
         metrics = accuracy_calculator(preds, truth, ACC_KPI)
-        # hr, mrr, ndcg
-        kpi = metrics[-1]
+        # ['ndcg', 'mrr', 'hr']
+        kpi = metrics[0]
         logger.info(f"Finish {TRIAL_CNT+1} trial for {opt.model}...")
         TRIAL_CNT += 1
 
