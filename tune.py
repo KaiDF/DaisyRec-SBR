@@ -191,6 +191,8 @@ def tune():
     study = optuna.create_study(direction='maximize', sampler=optuna.samplers.TPESampler(seed=opt.seed))
     study.optimize(objective, n_trials=opt.trials)
 
+
+    tune_params = list(set(tune_params))
     tune_log_path = f'./tune_log/sample_50/{opt.dataset}/'
     res_csv = tune_log_path + f'result_{opt.dataset}_{opt.model}.csv'
     with open(res_csv, 'w', newline='') as f:
