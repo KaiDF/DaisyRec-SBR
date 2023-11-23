@@ -134,7 +134,7 @@ def tune():
     model_config = Model_setting[opt.model]
     model_config['gpu'] = opt.gpu
     data_config = Dataset_setting[opt.dataset]
-    logger = get_logger(__file__.split('.')[0] + f'_{model_config["description"]}')
+    logger = get_logger(__file__.split('.')[0] + f'_{model_config["description"]}_{opt.dataset}')
     
     # dataloader = importlib.import_module('seren.utils.dataset.{}'.format(model_config['dataloader']))
     dataloader = getattr(importlib.import_module('seren.utils.dataset'), model_config['dataloader'], None)
