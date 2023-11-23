@@ -71,7 +71,7 @@ def test():
     best_settings = Best_setting[opt.model][opt.dataset]
     model_config = {**model_config, **best_settings}
     model_config['gpu'] = opt.gpu
-    logger = get_logger(__file__.split('.')[0] + f'_{model_config["description"]}_{opt.dataset}')
+    logger = get_logger(f'tune_{model_config["description"]}_{opt.dataset}')
     
     # dataloader = importlib.import_module('seren.utils.dataset.{}'.format(model_config['dataloader']))
     dataloader = getattr(importlib.import_module('seren.utils.dataset'), model_config['dataloader'], None)
@@ -102,9 +102,19 @@ def test():
     
     # training process
     model.fit(train_dataset)#, valid_dataset)
-    preds, truth = model.predict(valid_dataset, k=opt.topK)
-    metrics = accuracy_calculator(preds, truth, ACC_KPI)
-    print(metrics)
+
+    res_dir = f'res/sample150/{opt.dataset}/'
+    f = open(res_dir + f'result_{opt.dataset}_{opt.model}_{opt.seed}.txt', 'a')
+    for k in [1,5,10]:
+        # print(k)
+        line = f'HR@{k}\tNDCG@{k}\tMAP@{k}\n'
+        f.write(line)
+        preds, truth = model.predict(valid_dataset, k=k)
+        metrics = accuracy_calculator(preds, truth, ACC_KPI)
+        res_line = f'{metrics[2]:.4f}\t{metrics[0]:.4f}\t{metrics[1]:.4f}\n'
+        f.write(res_line)
+        f.flush()
+    f.close()
 
 TRIAL_CNT = 0
 def tune():
