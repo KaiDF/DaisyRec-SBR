@@ -107,7 +107,8 @@ class CombineGraph(Module):
         self.dropout_global = conf['dropout_global']
         self.hop = conf['n_iter']
         self.sample_num = conf['n_sample']
-        self.device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
+        gpuid = conf['gpu']
+        self.device = torch.device(f'cuda:{gpuid}' if torch.cuda.is_available() else 'cpu')
         self.adj_all = torch.Tensor(adj_all).long().to(self.device)
         self.num = torch.Tensor(num).float().to(self.device)
 
@@ -246,7 +247,8 @@ class CombineGraph(Module):
         return targets, self.compute_scores(seq_hidden, mask), candidate_set
 
     def fit(self, train_data, validation_data=None):
-        self.cuda(1) if torch.cuda.is_available() else self.cpu()
+        gpuid = int(self.devices.index)
+        self.cuda(gpuid) if torch.cuda.is_available() else self.cpu()
         self.logger.info('Start training...')
         last_loss = 0.0
         for epoch in range(1, self.epochs + 1):

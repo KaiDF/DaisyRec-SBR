@@ -371,7 +371,8 @@ class FPMC(nn.Module):
         self.logger = logger
         self.optimizer = torch.optim.Adam(
             self.parameters(), lr=params['learning_rate'], weight_decay=params['l2'])
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        gpuid = params['gpu']
+        self.device = torch.device(f'cuda:{gpuid}' if torch.cuda.is_available() else 'cpu')
         # parameters initialization
         self.apply(self._init_weights)
 

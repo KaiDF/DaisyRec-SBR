@@ -38,7 +38,8 @@ class STAMP(nn.Module):
         self.scheduler = torch.optim.lr_scheduler.StepLR(
             self.optimizer, step_size=params['lr_dc_step'], gamma=params['lr_dc'])
 
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        gpuid = params['gpu']
+        self.device = torch.device(f'cuda:{gpuid}' if torch.cuda.is_available() else 'cpu')
         # # parameters initialization
         self.apply(self._init_weights)
 
@@ -93,7 +94,8 @@ class STAMP(nn.Module):
         return item_scores
 
     def fit(self, train_loader, validation_loader=None):
-        self.cuda() if torch.cuda.is_available() else self.cpu()
+        gpuid = int(self.device.index)
+        self.cuda(gpuid) if torch.cuda.is_available() else self.cpu()
         self.logger.info('Start training...')
         last_loss = 0.0
         for epoch in range(1, self.epochs + 1):  

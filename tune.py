@@ -4,27 +4,26 @@ import time
 from datetime import datetime
 import importlib
 from seren.utils.data import Interactions, Categories
-from seren.config import get_parameters, get_logger, ACC_KPI, DIV_KPI
+from seren.utils.utils import get_logger, ACC_KPI
 from seren.utils.model_selection import fold_out, train_test_split, handle_adj, build_graph
 from seren.utils.dataset import NARMDataset, SRGNNDataset, GRU4RECDataset, ConventionDataset, GCEDataset
 from seren.utils.metrics import accuracy_calculator, diversity_calculator, performance_calculator
 from seren.model.narm import NARM
 from seren.model.stamp import STAMP
 from seren.model.mcprn_v4_block import MCPRN
-from seren.model.srgnn import SessionGraph
-from seren.model.gcsan_v2 import GCSAN
+
 from seren.model.gcegnn import CombineGraph
 from seren.model.hide import HIDE
 from seren.model.attenMixer import AreaAttnModel
-from seren.model.gru4rec import GRU4REC
 from seren.model.conventions import Pop, SessionPop, ItemKNN, BPRMF, FPMC
 from seren.utils.functions import reindex, get_dataloader
-from seren.config import TUNE_PATH
-from config import Model_setting, HyperParameter_setting, Dataset_setting
+from seren.Best_setting import Best_setting
+from config import Model_setting, HyperParameter_setting, Dataset_setting, Best_setting
 import json
 import os
 import numpy as np
 import optuna
+import csv
 
 def init_seed(seed=None):
     if seed is None:
@@ -35,43 +34,49 @@ def init_seed(seed=None):
     torch.cuda.manual_seed_all(seed)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dataset', default='amazon', help='diginetica/Nowplaying/Tmall')
+parser.add_argument('--dataset', default='amazon', help='amazon/games/ml1m')
 parser.add_argument('--model', default='MCPRN', help='MCPRN/STAMP/NARM/GCE-GNN/FPMC/HIDE')
 parser.add_argument('--seed', type=int, default=2023)
 parser.add_argument('--topK', type=int, default=5)
 parser.add_argument('--gpu', type=str, default='0')
+parser.add_argument('--trials', type=int, default=30)
+parser.add_argument('--tune', action='store_true', default=False)
+parser.add_argument('--test', action='store_true', default=False)
 
 
 opt = parser.parse_args()
+init_seed(opt.seed)
 
 def test():
-    init_seed(opt.seed)
     if opt.dataset == 'amazon':
-        train_data = np.load('seren/dataset/amz/train_amz_150.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/amz/train_amz_50.npy', allow_pickle=True).tolist()
         test_data = np.load('seren/dataset/amz/test_amz.npy', allow_pickle=True).tolist()
         candidate_data = np.load(f'seren/dataset/amz/candidate_test_{opt.seed}_amz.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'games':
-        train_data = np.load('seren/dataset/games/train_games_150.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/games/train_games_50.npy', allow_pickle=True).tolist()
         test_data = np.load('seren/dataset/games/test_games.npy', allow_pickle=True).tolist()
         candidate_data = np.load(f'seren/dataset/games/candidate_test_{opt.seed}_games.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'cd':
-        train_data = np.load('seren/dataset/cd/train_cd_150.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/cd/train_cd_50.npy', allow_pickle=True).tolist()
         test_data = np.load('seren/dataset/cd/valid_cd.npy', allow_pickle=True).tolist()
         candidate_data = np.load('seren/dataset/cd/candidate_vali.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'ml1m':
-        train_data = np.load('seren/dataset/ml1m/train_ml1m_150.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/ml1m/train_ml1m_50.npy', allow_pickle=True).tolist()
         test_data = np.load('seren/dataset/ml1m/test_ml1m.npy', allow_pickle=True).tolist()
         candidate_data = np.load(f'seren/dataset/ml1m/candidate_test_{opt.seed}_ml1m.npy', allow_pickle=True).tolist()
 
 
     model_config = Model_setting[opt.model]
     data_config = Dataset_setting[opt.dataset]
-    logger = get_logger(__file__.split('.')[0] + f'_{model_config["description"]}')
+    best_settings = Best_setting[opt.model][opt.dataset]
+    model_config = {**model_config, **best_settings}
+    model_config['gpu'] = opt.gpu
+    logger = get_logger(__file__.split('.')[0] + f'_{model_config["description"]}_{opt.dataset}')
     
     # dataloader = importlib.import_module('seren.utils.dataset.{}'.format(model_config['dataloader']))
     dataloader = getattr(importlib.import_module('seren.utils.dataset'), model_config['dataloader'], None)
     train_dataset = dataloader(train_data, model_config)
-    valid_dataset = dataloader(vali_data, model_config, candidate_set=candidate_data, isTrain=False)
+    valid_dataset = dataloader(test_data, model_config, candidate_set=candidate_data, isTrain=False)
     
 
     if opt.model in ['NARM','FPMC','STAMP','MCPRN']:
@@ -97,28 +102,31 @@ def test():
     
     # training process
     model.fit(train_dataset)#, valid_dataset)
-    preds, truth = model.predict(valid_dataset, k=5)
+    preds, truth = model.predict(valid_dataset, k=opt.topK)
     metrics = accuracy_calculator(preds, truth, ACC_KPI)
     print(metrics)
 
 TRIAL_CNT = 0
-if __name__ == '__main__':
-    # main()
-    init_seed(opt.seed)
+def tune():
+    # global TRIAL_CNT
+    global train_dataset
+    global valid_dataset
+    global candidate_data
+
     if opt.dataset == 'amazon':
-        train_data = np.load('seren/dataset/amz/train_amz_150.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/amz/train_amz_50.npy', allow_pickle=True).tolist()
         vali_data = np.load('seren/dataset/amz/valid_amz.npy', allow_pickle=True).tolist()
         candidate_data = np.load('seren/dataset/amz/candidate_vali.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'games':
-        train_data = np.load('seren/dataset/games/train_games_150.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/games/train_games_50.npy', allow_pickle=True).tolist()
         vali_data = np.load('seren/dataset/games/valid_games.npy', allow_pickle=True).tolist()
         candidate_data = np.load('seren/dataset/games/candidate_vali.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'cd':
-        train_data = np.load('seren/dataset/cd/train_cd_150.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/cd/train_cd_50.npy', allow_pickle=True).tolist()
         vali_data = np.load('seren/dataset/cd/valid_cd.npy', allow_pickle=True).tolist()
         candidate_data = np.load('seren/dataset/cd/candidate_vali.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'ml1m':
-        train_data = np.load('seren/dataset/ml1m/train_ml1m_150.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/ml1m/train_ml1m_50.npy', allow_pickle=True).tolist()
         vali_data = np.load('seren/dataset/ml1m/valid_ml1m.npy', allow_pickle=True).tolist()
         candidate_data = np.load('seren/dataset/ml1m/candidate_vali.npy', allow_pickle=True).tolist()
 
@@ -139,10 +147,6 @@ if __name__ == '__main__':
     tune_params = []
     def objective(trial):
         global TRIAL_CNT
-        global train_dataset
-        global valid_dataset
-        global candidate_data
-
         for key, value in HyperParameter_setting[opt.model].items():
             if key == 'int':
                 for para_name, scales in value.items():
@@ -185,17 +189,42 @@ if __name__ == '__main__':
         return kpi
 
     study = optuna.create_study(direction='maximize', sampler=optuna.samplers.TPESampler(seed=opt.seed))
-    study.optimize(objective, n_trials=30)
-    logger.info(f"Best trial for {opt.model}: {study.best_trial.number}")
-    tune_log_path = './tune_log/sample_150/'
-    f = open(tune_log_path + f'best_params_{opt.dataset}_{opt.model}.txt', 'a', encoding='utf-8')
-    save_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    f.write(f"Saved at: {save_time}\n")
-    f.write(f"Best trial getting the best NDCG@{opt.topK} for {opt.model}: {study.best_trial.number}\n")
-    f.write(f"Best params for {opt.model}: {study.best_trial.params}\n")
-    f.write(f"Best value for {opt.model}: {study.best_value}\n")
-    f.flush()
-    f.close()
+    study.optimize(objective, n_trials=opt.trials)
+
+    tune_log_path = f'./tune_log/sample_50/{opt.dataset}/'
+    res_csv = tune_log_path + f'result_{opt.dataset}_{opt.model}.csv'
+    with open(res_csv, 'w', newline='') as f:
+        fieldnames = ['Trial ID'] + tune_params + ['NDCG@5']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        
+        for estudio in study.trials:
+            w_dict = {}
+            w_dict['Trial ID'] = estudio.number+1
+            for paras in tune_params:
+                w_dict[paras] = estudio.params[paras]
+            w_dict['NDCG@5'] = estudio.value
+            writer.writerow(w_dict)
+
+        best_dict = {}
+        best_dict['Trial ID'] = study.best_trial.number+1
+        best_dict['NDCG@5'] = study.best_value
+        for paras in tune_params:
+            best_dict[paras] = study.best_trial.params[paras]
+        writer.writerow(best_dict)
+        f.flush()
+        f.close()
+
+    logger.info(f"Best trial for {opt.model}: {study.best_trial.number+1}")
+
+
+
+if __name__ == '__main__':
+    if opt.tune:
+        tune()
+    elif opt.test:
+        test()
+
 
 
 

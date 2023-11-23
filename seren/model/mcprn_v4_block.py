@@ -93,7 +93,8 @@ class MCPRN(Module):
             self.parameters(), lr=params['learning_rate'], weight_decay=params['l2'])
         self.scheduler = torch.optim.lr_scheduler.StepLR(
             self.optimizer, step_size=params['lr_dc_step'], gamma=params['lr_dc'])
-        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu') # False
+        gpuid = params['gpu']
+        self.device = torch.device(f'cuda:{gpuid}' if torch.cuda.is_available() else 'cpu')
         
     def reset_parameters(self):
         stdv = 1.0 / math.sqrt(self.hidden_size)
@@ -161,7 +162,8 @@ class MCPRN(Module):
         return torch.zeros((batch_size, self.hidden_size), requires_grad=True).to(self.device)
 
     def fit(self, train_loader, validation_loader=None):
-        self.cuda() if torch.cuda.is_available() else self.cpu()
+        gpuid = int(self.device.index)
+        self.cuda(gpuid) if torch.cuda.is_available() else self.cpu()
         self.logger.info('Start training...')
         last_loss = 0.0
         # train_loader = torch.utils.data.DataLoader(train_loader, batch_size=self.batch_size, shuffle=True)

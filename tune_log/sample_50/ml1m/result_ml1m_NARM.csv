@@ -1,0 +1,3 @@
+Trial ID,hidden_size,item_embedding_dim,learning_rate,batch_size,n_layers,NDCG@5
+1,100,32,0.001,64,2,0.321
+1,100,32,0.001,64,2,0.321

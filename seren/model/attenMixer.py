@@ -154,7 +154,8 @@ class AreaAttnModel(Module):
         self.optimizer = torch.optim.Adam(self.parameters(), lr=self.opt['learning_rate'], weight_decay=self.opt['l2'])
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=self.opt['lr_dc_step'], gamma=self.opt['lr_dc'])
         self.logger = logger
-        self.devices = torch.device('cuda:1') if torch.cuda.is_available() else torch.device('cpu')
+        gpuid = opt['gpu']
+        self.devices = torch.device(f'cuda:{gpuid}' if torch.cuda.is_available() else 'cpu')
 
     def forward(self, *args):
 
@@ -196,7 +197,9 @@ class AreaAttnModel(Module):
 
 
     def fit(self, train_data, validation_data=None):
-        self.cuda(1) if torch.cuda.is_available() else self.cpu()
+        gpuid = int(self.devices.index)
+        self.cuda(gpuid) if torch.cuda.is_available() else self.cpu()
+        # self.cuda(1) if torch.cuda.is_available() else self.cpu()
         self.logger.info('Start training...')
 
         last_loss = 0.

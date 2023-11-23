@@ -244,87 +244,84 @@ HyperParameter_setting = {
 Best_setting = {
     'GCE-GNN': {
         'amazon':{
-            'epochs':100,
-            'item_embedding_dim': 32,
-            'learning_rate': 0.001,
-            'batch_size':64,
-            'n_iter':1,
-            'dropout_gcn':0,
-            'dropout_local':0.5
+
         },
         'games':{
-            'epochs':100,
-            'item_embedding_dim': 32,
-            'learning_rate': 0.001,
-            'batch_size':64,
-            'n_iter':1,
-            'dropout_gcn':0,
-            'dropout_local':0.5
+
         },
         'ml1m':{
-            'epochs':100,
-            'item_embedding_dim': 32,
-            'learning_rate': 0.001,
-            'batch_size':64,
-            'n_iter':1,
-            'dropout_gcn':0,
-            'dropout_local':0.5
+
         }
         # need to be tuned
     },
     'MCPRN': {
+        'amazon':{
+
+        },
+        'games':{
+
+        },
+        'ml1m':{
+
+        }
         # need to be tuned
-        'epochs':100,
-        'item_embedding_dim': 32,
-        'learning_rate': 0.001,
-        'batch_size':16,
-        'tau':0.01,
-        'purposes':2
+   
     },
     'STAMP': {
-        # need to be tuned
-        'epochs':100,
-        'item_embedding_dim': 32,
-        'learning_rate': 0.001,
-        'batch_size':16,
+        'amazon':{
+
+        },
+        'games':{
+
+        },
+        'ml1m':{
+
+        }
     },
     'NARM': {
-        # need to be tuned
-        'epochs':100,
-        'item_embedding_dim': 32,
-        'learning_rate': 0.001,
-        'batch_size':16,
-        'hidden_size':100,
-        'n_layers':1
+        'amazon':{
+
+        },
+        'games':{
+
+        },
+        'ml1m':{
+
+        }
     },
     'FPMC': {
-        # need to be tuned
-        'epochs':100,
-        'item_embedding_dim': 32,
-        'learning_rate': 0.001,
-        'batch_size':16
+        'amazon':{
+
+        },
+        'games':{
+
+        },
+        'ml1m':{
+
+        }
     },
     'HIDE': {
-        # need to be tuned
-        'epochs':100,
-        'item_embedding_dim': 32,
-        'learning_rate': 0.001,
-        'batch_size':64,
-        'n_factor':3,
-        'dropout_gcn':0,
-        'dropout_local':0.5,
-        'w':5,
-        'lamda':0.01,
-        'reg':1e-5
+        'amazon':{
+
+        },
+        'games':{
+
+        },
+        'ml1m':{
+
+        }
     },
     'AttenMixer': {
-        # need to be tuned
-        'epochs':100,
-        'item_embedding_dim': 32,
-        'learning_rate': 0.001,
-        'batch_size':64,
-        'l_p':3,
-        'heads':8
+        'amazon':{
+
+        },
+        'games':{
+
+        },
+        'ml1m':{
+
+        }
     }
 
 }
+
