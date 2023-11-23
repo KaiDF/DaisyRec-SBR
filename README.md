@@ -5,7 +5,7 @@
 ## Usage
 Run besttest.py file to train and test the model.
 ```bash
-python tune.py --model=narm --dataset=amazon
+python tune.py --model=narm --dataset=amazon --gpu 0 --tune
 ```
 
 
