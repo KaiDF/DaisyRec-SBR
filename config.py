@@ -69,7 +69,7 @@ Model_setting = {
         'epochs':100,
         'item_embedding_dim': 32,
         'learning_rate': 0.001,
-        'batch_size':16,
+        'batch_size':16
     },
     'NARM': {
         'model_dir': 'narm',
@@ -244,82 +244,190 @@ HyperParameter_setting = {
 Best_setting = {
     'GCE-GNN': {
         'amazon':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.01,
+            'batch_size':256,
+            'n_iter':2,
+            'dropout_gcn':0,
+            'dropout_local':0.5
         },
         'games':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.001,
+            'batch_size':256,
+            'n_iter':2,
+            'dropout_gcn':0,
+            'dropout_local':0
         },
         'ml1m':{
-
+            'epochs':100,
+            'item_embedding_dim': 32,
+            'learning_rate': 0.001,
+            'batch_size':64,
+            'n_iter':1,
+            'dropout_gcn':0,
+            'dropout_local':0.5
         }
         # need to be tuned
     },
     'MCPRN': {
-        'amazon':{
-
+        'amazon':{    
+            'epochs':100,
+            'item_embedding_dim': 32,
+            'learning_rate': 0.01,
+            'batch_size':128,
+            'tau':0.01,
+            'purposes':2
         },
         'games':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.01,
+            'batch_size':64,
+            'tau':1,
+            'purposes':1
         },
         'ml1m':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.001,
+            'batch_size':256,
+            'tau':0.1,
+            'purposes':4
         }
         # need to be tuned
    
     },
     'STAMP': {
         'amazon':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.01,
+            'batch_size':256
         },
         'games':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.001,
+            'batch_size':256
         },
         'ml1m':{
-
+            'epochs':100,
+            'item_embedding_dim': 32,
+            'learning_rate': 0.0001,
+            'batch_size':64
         }
     },
     'NARM': {
         'amazon':{
-
+            'epochs':100,
+            'item_embedding_dim': 32,
+            'learning_rate': 0.001,
+            'batch_size':64,
+            'hidden_size':100,
+            'n_layers':2
         },
         'games':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.01,
+            'batch_size':128,
+            'hidden_size':100,
+            'n_layers':3
         },
         'ml1m':{
-
+            'epochs':100,
+            'item_embedding_dim': 64,
+            'learning_rate': 0.0001,
+            'batch_size':256,
+            'hidden_size':50,
+            'n_layers':2
         }
     },
     'FPMC': {
         'amazon':{
-
+            'epochs':100,
+            'item_embedding_dim': 32,
+            'learning_rate': 0.01,
+            'batch_size':128
         },
         'games':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.01,
+            'batch_size':64
         },
         'ml1m':{
-
+            'epochs':100,
+            'item_embedding_dim': 64,
+            'learning_rate': 0.001,
+            'batch_size':128
         }
     },
     'HIDE': {
         'amazon':{
-
+            'epochs':100,
+            'item_embedding_dim': 64,
+            'learning_rate': 0.0001,
+            'batch_size':64,
+            'n_factor':1,
+            'dropout_gcn':0.6,
+            'dropout_local':0,
+            'w':6,
+            'lamda':0.01,
+            'reg':0.001
         },
         'games':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.001,
+            'batch_size':64,
+            'n_factor':1,
+            'dropout_gcn':0,
+            'dropout_local':0.5,
+            'w':3,
+            'lamda':1e-5,
+            'reg':1e-5
         },
         'ml1m':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.001,
+            'batch_size':64,
+            'n_factor':1,
+            'dropout_gcn':0.2,
+            'dropout_local':0.5,
+            'w':5,
+            'lamda':0.001,
+            'reg':0.01
         }
     },
     'AttenMixer': {
         'amazon':{
-
+            'epochs':100,
+            'item_embedding_dim': 32,
+            'learning_rate': 0.0001,
+            'batch_size':256,
+            'l_p':7,
+            'heads':1
         },
         'games':{
-
+            'epochs':100,
+            'item_embedding_dim': 128,
+            'learning_rate': 0.001,
+            'batch_size':256,
+            'l_p':3,
+            'heads':4
         },
         'ml1m':{
-
+            'epochs':100,
+            'item_embedding_dim': 32,
+            'learning_rate': 0.001,
+            'batch_size':64,
+            'l_p':10,
+            'heads':2
         }
     }
 

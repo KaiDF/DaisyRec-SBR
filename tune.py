@@ -35,7 +35,7 @@ def init_seed(seed=None):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default='amazon', help='amazon/games/ml1m')
-parser.add_argument('--model', default='MCPRN', help='MCPRN/STAMP/NARM/GCE-GNN/FPMC/HIDE')
+parser.add_argument('--model', default='FPMC', help='MCPRN/STAMP/NARM/GCE-GNN/FPMC/HIDE')
 parser.add_argument('--seed', type=int, default=2023)
 parser.add_argument('--topK', type=int, default=5)
 parser.add_argument('--gpu', type=str, default='0')
@@ -49,19 +49,19 @@ init_seed(opt.seed)
 
 def test():
     if opt.dataset == 'amazon':
-        train_data = np.load('seren/dataset/amz/train_amz_50.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/amz/train_amz_150.npy', allow_pickle=True).tolist()
         test_data = np.load('seren/dataset/amz/test_amz.npy', allow_pickle=True).tolist()
         candidate_data = np.load(f'seren/dataset/amz/candidate_test_{opt.seed}_amz.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'games':
-        train_data = np.load('seren/dataset/games/train_games_50.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/games/train_games_150.npy', allow_pickle=True).tolist()
         test_data = np.load('seren/dataset/games/test_games.npy', allow_pickle=True).tolist()
         candidate_data = np.load(f'seren/dataset/games/candidate_test_{opt.seed}_games.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'cd':
-        train_data = np.load('seren/dataset/cd/train_cd_50.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/cd/train_cd_150.npy', allow_pickle=True).tolist()
         test_data = np.load('seren/dataset/cd/valid_cd.npy', allow_pickle=True).tolist()
         candidate_data = np.load('seren/dataset/cd/candidate_vali.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'ml1m':
-        train_data = np.load('seren/dataset/ml1m/train_ml1m_50.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/ml1m/train_ml1m_150.npy', allow_pickle=True).tolist()
         test_data = np.load('seren/dataset/ml1m/test_ml1m.npy', allow_pickle=True).tolist()
         candidate_data = np.load(f'seren/dataset/ml1m/candidate_test_{opt.seed}_ml1m.npy', allow_pickle=True).tolist()
 
@@ -103,18 +103,23 @@ def test():
     # training process
     model.fit(train_dataset)#, valid_dataset)
 
-    res_dir = f'res/sample50/{opt.dataset}/'
+    res_dir = f'res/sample150/{opt.dataset}/'
     f = open(res_dir + f'result_{opt.dataset}_{opt.model}_{opt.seed}.txt', 'a')
     for k in [1,5,10]:
         # print(k)
         line = f'HR@{k}\tNDCG@{k}\tMAP@{k}\n'
         f.write(line)
         preds, truth = model.predict(valid_dataset, k=k)
+        # print(preds[:10])
+        # print(truth[:10])
+        # print(truth.shape)
         metrics = accuracy_calculator(preds, truth, ACC_KPI)
         res_line = f'{metrics[2]:.4f}\t{metrics[0]:.4f}\t{metrics[1]:.4f}\n'
         f.write(res_line)
         f.flush()
     f.close()
+        # ['ndcg', 'mrr', 'hr']
+        # print(metrics)
 
 TRIAL_CNT = 0
 def tune():
@@ -124,19 +129,19 @@ def tune():
     global candidate_data
 
     if opt.dataset == 'amazon':
-        train_data = np.load('seren/dataset/amz/train_amz_50.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/amz/train_amz_150.npy', allow_pickle=True).tolist()
         vali_data = np.load('seren/dataset/amz/valid_amz.npy', allow_pickle=True).tolist()
         candidate_data = np.load('seren/dataset/amz/candidate_vali.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'games':
-        train_data = np.load('seren/dataset/games/train_games_50.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/games/train_games_150.npy', allow_pickle=True).tolist()
         vali_data = np.load('seren/dataset/games/valid_games.npy', allow_pickle=True).tolist()
         candidate_data = np.load('seren/dataset/games/candidate_vali.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'cd':
-        train_data = np.load('seren/dataset/cd/train_cd_50.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/cd/train_cd_150.npy', allow_pickle=True).tolist()
         vali_data = np.load('seren/dataset/cd/valid_cd.npy', allow_pickle=True).tolist()
         candidate_data = np.load('seren/dataset/cd/candidate_vali.npy', allow_pickle=True).tolist()
     elif opt.dataset == 'ml1m':
-        train_data = np.load('seren/dataset/ml1m/train_ml1m_50.npy', allow_pickle=True).tolist()
+        train_data = np.load('seren/dataset/ml1m/train_ml1m_150.npy', allow_pickle=True).tolist()
         vali_data = np.load('seren/dataset/ml1m/valid_ml1m.npy', allow_pickle=True).tolist()
         candidate_data = np.load('seren/dataset/ml1m/candidate_vali.npy', allow_pickle=True).tolist()
 
@@ -144,7 +149,7 @@ def tune():
     model_config = Model_setting[opt.model]
     model_config['gpu'] = opt.gpu
     data_config = Dataset_setting[opt.dataset]
-    logger = get_logger(__file__.split('.')[0] + f'_{model_config["description"]}_{opt.dataset}')
+    logger = get_logger(f'tune_{model_config["description"]}_{opt.dataset}')
     
     # dataloader = importlib.import_module('seren.utils.dataset.{}'.format(model_config['dataloader']))
     dataloader = getattr(importlib.import_module('seren.utils.dataset'), model_config['dataloader'], None)
@@ -201,9 +206,8 @@ def tune():
     study = optuna.create_study(direction='maximize', sampler=optuna.samplers.TPESampler(seed=opt.seed))
     study.optimize(objective, n_trials=opt.trials)
 
-
     tune_params = list(set(tune_params))
-    tune_log_path = f'./tune_log/sample_50/{opt.dataset}/'
+    tune_log_path = f'./tune_log/sample_150/{opt.dataset}/'
     res_csv = tune_log_path + f'result_{opt.dataset}_{opt.model}.csv'
     with open(res_csv, 'w', newline='') as f:
         fieldnames = ['Trial ID'] + tune_params + ['NDCG@5']
